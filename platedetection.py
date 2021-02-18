@@ -21,10 +21,32 @@ cv2.waitKey()
 #Efficiency Possibility: 5 is the recommended for real-time systems, but this could be reduced
 
 #Perform edge detection
-image = cv2.Canny(image, 100, 200)          #https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html
+image = cv2.Canny(image, 30, 200)          #https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html
 cv2.imshow("Canny Edge Detection", image)
 cv2.waitKey()
 #Efficiency Possibility: Write my own Canny algorithm
 
 #Looking for contours
 
+contours = cv2.findContours(image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+contours = imutils.grab_contours(contours)
+contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
+screenCnt = None
+
+for c in contours:
+    
+    peri = cv2.arcLength(c, True)
+    approx = cv2.approxPolyDP(c, 0.018 * peri, True)
+ 
+    if len(approx) == 4:
+        screenCnt = approx
+        break
+
+if screenCnt is None:
+    detected = 0
+    print ("No contour detected")
+else:
+     detected = 1
+
+if detected == 1:
+    cv2.drawContours(img, [screenCnt], -1, (0, 0, 255), 3)
