@@ -2,7 +2,7 @@ from cv2 import cv2
 import imutils
 
 #read the image into cv object
-path = 'carWithPlate.png'   #our image will be from video most likely jpg
+path = 'frontPlate.jpeg'   #our image will be from video most likely jpg
 image = cv2.imread(path)    #https://www.geeksforgeeks.org/python-opencv-cv2-imread-method/
 cv2.imshow("Original", image)
 cv2.waitKey()
@@ -33,20 +33,4 @@ contours = imutils.grab_contours(contours)
 contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
 screenCnt = None
 
-for c in contours:
-    
-    peri = cv2.arcLength(c, True)
-    approx = cv2.approxPolyDP(c, 0.018 * peri, True)
- 
-    if len(approx) == 4:
-        screenCnt = approx
-        break
-
-if screenCnt is None:
-    detected = 0
-    print ("No contour detected")
-else:
-     detected = 1
-
-if detected == 1:
-    cv2.drawContours(img, [screenCnt], -1, (0, 0, 255), 3)
+print(contours)
