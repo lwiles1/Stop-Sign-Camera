@@ -27,3 +27,4 @@ cv2.waitKey()
 #Efficiency Possibility: Write my own Canny algorithm
 
 #Looking for contours
+
