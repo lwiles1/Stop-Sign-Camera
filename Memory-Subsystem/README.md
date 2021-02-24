@@ -1,7 +1,7 @@
 # Memory and User Interaction Subsystem
-### Lucas Wiles
-### Purdue University
 
+
+### Lucas Wiles - Purdue University - ECE 49022
 The code in these files is for use with the STM32F407G-DISC1 and the Raspberry Pi Zero.
 
 ## STM32-USB
