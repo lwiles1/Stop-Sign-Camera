@@ -30,7 +30,5 @@ cv2.waitKey()
 
 contours = cv2.findContours(image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 contours = imutils.grab_contours(contours)
-contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
-screenCnt = None
+#Efficiency Possibility: Sort contours into top amount of shapes
 
-print(contours)
