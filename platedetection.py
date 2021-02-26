@@ -1,21 +1,22 @@
 from cv2 import cv2
-import imutils
+import numpy as np
+#import imutils
 
 #read the image into cv object
-path = 'frontPlate.jpeg'   #our image will be from video most likely jpg
-image = cv2.imread(path)    #https://www.geeksforgeeks.org/python-opencv-cv2-imread-method/
-cv2.imshow("Original", image)
+path = 'backPlate.jpg'   #our image will be from video most likely jpg
+og = cv2.imread(path)    #https://www.geeksforgeeks.org/python-opencv-cv2-imread-method/
+cv2.imshow("Original", og)
 cv2.waitKey()
 #Efficiency Possibility: try cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
 #Resize on standardized license plate zone (later)
 #Greyscale the image
-image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)     #https://docs.opencv.org/3.4/d8/d01/group__imgproc__color__conversions.html
-cv2.imshow("Gray-Scale", image)
+grey = cv2.cvtColor(og, cv2.COLOR_BGR2GRAY)     #https://docs.opencv.org/3.4/d8/d01/group__imgproc__color__conversions.html
+cv2.imshow("Gray-Scale", grey)
 cv2.waitKey()
 
 #blur the image
-image = cv2.bilateralFilter(image, 5, 60, 60)      #https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html
+image = cv2.bilateralFilter(grey, 5, 60, 60)      #https://docs.opencv.org/master/d4/d86/group__imgproc__filter.html
 cv2.imshow("Bilateral Filter", image)                       # Numbers determined from docs above
 cv2.waitKey()
 #Efficiency Possibility: 5 is the recommended for real-time systems, but this could be reduced
@@ -28,7 +29,49 @@ cv2.waitKey()
 
 #Looking for contours
 
-contours = cv2.findContours(image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-contours = imutils.grab_contours(contours)
+(contours, _) = cv2.findContours(image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)      #https://docs.opencv.org/master/d4/d73/tutorial_py_contours_begin.html
+#contours = imutils.grab_contours(contours) Originally necessary, but removed due to this blog: https://www.pyimagesearch.com/2015/08/10/checking-your-opencv-version-using-python/
 #Efficiency Possibility: Sort contours into top amount of shapes
 
+contours = sorted(contours, key = cv2.contourArea, reverse = True)[:10]
+screenCnt = None
+
+#Find the rectangles
+
+for c in contours:
+    
+    perimeter = cv2.arcLength(c, True)       #Finding perimeter (make sure shape is closed): https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contour_features/py_contour_features.html
+    approx = cv2.approxPolyDP(c, 0.018 * perimeter, True)       # Same site as above; can edit 0.018 for contour approx
+ 
+    if len(approx) == 4:
+        screenCnt = approx
+        break
+
+if screenCnt is None:
+    detected = 0
+    print ("No contour detected")
+else:
+     detected = 1
+
+if detected == 1:
+    cv2.drawContours(og, [screenCnt], -1, (0, 0, 255), 3)           #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_contours/py_contours_begin/py_contours_begin.html
+
+cv2.imshow("License Outline", og)
+cv2.waitKey()
+
+#Mask the image
+mask = np.zeros(grey.shape,np.uint8)                        #https://numpy.org/doc/stable/reference/generated/numpy.zeros.html
+masked = cv2.drawContours(mask,[screenCnt],0,255,-1,)    
+masked = cv2.bitwise_and(og,og,mask=mask)                #https://docs.opencv.org/master/d0/d86/tutorial_py_image_arithmetics.html
+
+cv2.imshow("Mask", masked)
+cv2.waitKey()
+
+#Crop accordingly
+(x, y) = np.where(mask == 255)
+(topx, topy) = (np.min(x), np.min(y))
+(bottomx, bottomy) = (np.max(x), np.max(y))
+cropped = grey[topx:bottomx+1, topy:bottomy+1]
+
+cv2.imshow("Crop", cropped)
+cv2.waitKey()
