@@ -4,6 +4,7 @@
 # https://www.sparkfun.com/products/11629
 
 # Obtained this code from: https://learn.sparkfun.com/tutorials/raspberry-pi-spi-and-i2c-tutorial/all
+# Documentation for spidev: https://pypi.org/project/spidev/
 
 import time
 import spidev
