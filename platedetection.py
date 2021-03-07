@@ -4,10 +4,11 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 #read the image into cv object
-path = 'frontPlate.jpeg'   #our image will be from video most likely jpg
+path = 'TruckFake.jpg'   #our image will be from video most likely jpg
 og = cv2.imread(path)    #https://www.geeksforgeeks.org/python-opencv-cv2-imread-method/
-# cv2.imshow("Original", og)
-# cv2.waitKey()
+og = og[1000:3000, 1000:3000]
+cv2.imshow("Original", og)
+cv2.waitKey()
 #Efficiency Possibility: try cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 
 #Resize on standardized license plate zone (later)
