@@ -4,9 +4,8 @@ import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 #read the image into cv object
-path = 'TruckFake.jpg'   #our image will be from video most likely jpg
+path = 'WontaeFakeCali.jpg'   #our image will be from video most likely jpg
 og = cv2.imread(path)    #https://www.geeksforgeeks.org/python-opencv-cv2-imread-method/
-og = og[1000:3000, 1000:3000]
 cv2.imshow("Original", og)
 cv2.waitKey()
 #Efficiency Possibility: try cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -24,14 +23,14 @@ image = cv2.bilateralFilter(grey, 5, 60, 60)      #https://docs.opencv.org/maste
 #Efficiency Possibility: 5 is the recommended for real-time systems, but this could be reduced
 
 #Perform edge detection
-image = cv2.Canny(image, 30, 200)          #https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html
-# cv2.imshow("Canny Edge Detection", image)
-# cv2.waitKey()
+edges = cv2.Canny(image, 30, 200)          #https://docs.opencv.org/3.4/da/d5c/tutorial_canny_detector.html
+cv2.imshow("Canny Edge Detection", edges)
+cv2.waitKey()
 #Efficiency Possibility: Write my own Canny algorithm
 
 #Looking for contours
 
-(contours, _) = cv2.findContours(image.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)      #https://docs.opencv.org/master/d4/d73/tutorial_py_contours_begin.html
+(contours, _) = cv2.findContours(edges.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)      #https://docs.opencv.org/master/d4/d73/tutorial_py_contours_begin.html
 #contours = imutils.grab_contours(contours) Originally necessary, but removed due to this blog: https://www.pyimagesearch.com/2015/08/10/checking-your-opencv-version-using-python/
 #Efficiency Possibility: Sort contours into top amount of shapes
 
@@ -75,8 +74,12 @@ masked = cv2.bitwise_and(og,og,mask=mask)                #https://docs.opencv.or
 (bottomx, bottomy) = (np.max(x), np.max(y))
 cropped = grey[topx:bottomx+1, topy:bottomy+1]
 
+othercropped = edges[topx:bottomx+1, topy:bottomy+1]
+
 cv2.imshow("Crop", cropped)
 cv2.waitKey()
 
-text = pytesseract.image_to_string(cropped, config='--psm 11')
+text = pytesseract.image_to_string(cropped)
+print("Detected license plate Number is:",text)
+text = pytesseract.image_to_string(othercropped)
 print("Detected license plate Number is:",text)
